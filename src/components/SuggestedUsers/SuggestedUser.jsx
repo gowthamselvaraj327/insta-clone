@@ -10,7 +10,7 @@ const SuggestedUser = ({ name, followers, avatar }) => {
                     <Avatar.Fallback name='Segun Adebayo' />
                     <Avatar.Image src={avatar} />
                 </Avatar.Root>
-                <VStack spacing={2} alignItems={"flex-start"}>
+                <VStack gap={2} alignItems={"flex-start"}>
                     <Box fontSize={12} fontWeight={"bold"}>
                         {name}
                     </Box>

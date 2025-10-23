@@ -8,7 +8,7 @@ const AuthPage = () => {
             alignItems={"center"}
             px={4}
         >
-            <Container maxW={"container.md"} padding={0}>
+            <Container maxW={"3xl"} padding={0}>
                 <Flex justifyContent={"center"} alignItems={"center"} gap={10}>
                     {/* Left Side */}
                     <Box display={{ sm: "none", md: "block" }}>
@@ -19,7 +19,7 @@ const AuthPage = () => {
                         />
                     </Box>
                     {/* Right Side */}
-                    <VStack spacing={4} align={"stretch"}>
+                    <VStack gap={4} align={"stretch"}>
                         <AuthForm />
                         <Box textAlign={"center"}>Get the App.</Box>
                         <Flex gap={4} justifyContent={"center"}>

@@ -25,9 +25,21 @@ const SuggestedUsers = () => {
                     See all
                 </Text>
             </Flex>
-            <SuggestedUser name="Dan Abrahmov" followers={1392} avatar="/img2.png" />
-            <SuggestedUser name="Ryan Florence" followers={567} avatar="/img1.png" />
-            <SuggestedUser name="Christian Nwamba" followers={759} avatar="/img3.png" />
+            <SuggestedUser
+                name='Dan Abrahmov'
+                followers={1392}
+                avatar='/img2.png'
+            />
+            <SuggestedUser
+                name='Ryan Florence'
+                followers={567}
+                avatar='/img1.png'
+            />
+            <SuggestedUser
+                name='Christian Nwamba'
+                followers={759}
+                avatar='/img3.png'
+            />
         </VStack>
     );
 };
