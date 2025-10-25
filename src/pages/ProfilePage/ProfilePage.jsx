@@ -5,7 +5,7 @@ import ProfilePosts from "../../components/Profile/ProfilePosts";
 
 const ProfilePage = () => {
     return (
-        <Container maxW='5xl' py={5} border={"2px solid blue"}>
+        <Container maxW='6xl' py={5}>
             <Flex
                 py={10}
                 px={4}
