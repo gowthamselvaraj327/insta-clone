@@ -1,29 +1,42 @@
-import { Avatar, Box, Flex, Link } from "@chakra-ui/react";
+import { Avatar, Box, Button, Flex } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
+import useLogout from "../../hooks/useLogout";
+import useAuthStore from "../../store/authStore";
 
 const SuggestedHeader = () => {
+    const authUser = useAuthStore((state) => state.user);
+    const { handleLogout, isLoggingOut } = useLogout();
     return (
         <Flex justifyContent={"space-between"} alignItems={"center"} w={"full"}>
             <Flex alignItems={"center"} gap={2}>
-                <Avatar.Root size={"lg"}>
-                    <Avatar.Fallback name='Segun Adebayo' />
-                    <Avatar.Image src='/profilepic.png' />
-                </Avatar.Root>
-                <Box fontSize={12} fontWeight={"bold"}>
-                    asaprogrammer
-                </Box>
+                <RouterLink to={`${authUser.username}`}>
+                    <Avatar.Root size={"lg"}>
+                        <Avatar.Fallback />
+                        <Avatar.Image src={authUser.profilePicURL} />
+                    </Avatar.Root>
+                </RouterLink>
+                <RouterLink to={`${authUser.username}`}>
+                    <Box fontSize={12} fontWeight={"bold"}>
+                        {authUser.username}
+                    </Box>
+                </RouterLink>
             </Flex>
-            <Link
-                as={RouterLink}
-                to={"/auth"}
+            <Button
+                size={"xs"}
+                bg={"transparent"}
+                _hover={{
+                    bg: "transparent",
+                }}
                 fontSize={14}
                 fontWeight={"medium"}
                 color={"blue.400"}
                 textDecoration={"none"}
                 cursor={"pointer"}
+                onClick={handleLogout}
+                loading={isLoggingOut}
             >
                 Log Out
-            </Link>
+            </Button>
         </Flex>
     );
 };

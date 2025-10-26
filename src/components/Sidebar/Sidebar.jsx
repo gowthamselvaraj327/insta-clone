@@ -1,4 +1,11 @@
-import { Avatar, Box, Flex, Link, useBreakpointValue } from "@chakra-ui/react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Flex,
+    Link,
+    useBreakpointValue,
+} from "@chakra-ui/react";
 import { Tooltip } from "../ui/tooltip";
 import { Link as RouterLink } from "react-router-dom";
 import {
@@ -11,9 +18,11 @@ import {
 import { AiFillHome } from "react-icons/ai";
 import { css } from "@emotion/react";
 import { BiLogOut } from "react-icons/bi";
+import useLogout from "../../hooks/useLogout";
 
 const Sidebar = () => {
     const showTooltip = useBreakpointValue({ base: true, md: false });
+    const { handleLogout, isLoggingOut, error } = useLogout();
     const sidebarItems = [
         {
             icon: <AiFillHome size={24} />,
@@ -117,10 +126,8 @@ const Sidebar = () => {
                     openDelay={500}
                     disabled={!showTooltip}
                 >
-                    <Link
-                        display={"flex"}
-                        to={"/auth"}
-                        as={RouterLink}
+                    <Flex
+                        onClick={handleLogout}
                         borderRadius={6}
                         _hover={{ bg: "whiteAlpha.400" }}
                         alignItems={"center"}
@@ -132,10 +139,15 @@ const Sidebar = () => {
                         textDecoration={"none"}
                     >
                         <BiLogOut size={24} />
-                        <Box display={{ base: "none", md: "block" }}>
+                        <Button
+                            display={{ base: "none", md: "block" }}
+                            loading={isLoggingOut}
+                            variant={"ghost"}
+                            _hover={{ bg: "transparent" }}
+                        >
                             Logout
-                        </Box>
-                    </Link>
+                        </Button>
+                    </Flex>
                 </Tooltip>
             </Flex>
         </Box>
