@@ -62,7 +62,7 @@ const useSignUpWithEmailAndPassword = () => {
                     doc(firestore, "users", newUser.user.uid),
                     userDoc
                 );
-                localStorage.setItem("userInfo", userDoc);
+                localStorage.setItem("userInfo", JSON.stringify(userDoc));
                 loginUser(userDoc);
             }
         } catch (error) {
