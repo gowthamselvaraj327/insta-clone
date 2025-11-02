@@ -42,11 +42,7 @@ const ProfileHeader = () => {
                     <Avatar.Fallback />
                     <Avatar.Image
                         alt='Profile Pic'
-                        src={
-                            userProfile.profilePicURL
-                                ? userProfile.profilePicURL
-                                : null
-                        }
+                        src={userProfile?.profilePicURL || null}
                     />
                 </Avatar.Root>
             </AvatarGroup>
