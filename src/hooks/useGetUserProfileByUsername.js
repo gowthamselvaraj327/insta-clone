@@ -24,7 +24,6 @@ const useGetUserProfileByUsername = (username) => {
                     userDoc = doc.data();
                 });
                 setUserProfile(userDoc);
-                console.log(userDoc);
             } catch (error) {
                 // showToast is trying to force the dom to show the error while dom is rendering the component,
                 // so added the showToast to queuemicrotask which will show the toast once dom completed the rendering
