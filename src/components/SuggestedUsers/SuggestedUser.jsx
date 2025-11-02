@@ -10,12 +10,13 @@ const SuggestedUser = ({ user, setUser }) => {
     const authUser = useAuthStore((state) => state.user);
     const onFollowUser = async () => {
         await handleFollowUser();
-        setUser({
-            ...user,
-            followers: isFollowing
-                ? user.followers.filter((uid) => uid !== authUser.uid)
-                : [...user.followers, authUser.uid],
-        });
+        if (setUser)
+            setUser({
+                ...user,
+                followers: isFollowing
+                    ? user.followers.filter((uid) => uid !== authUser.uid)
+                    : [...user.followers, authUser.uid],
+            });
     };
     return (
         <Flex justifyContent={"space-between"} alignItems={"center"} w={"full"}>
