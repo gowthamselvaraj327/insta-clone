@@ -7,33 +7,38 @@ import {
     InputGroup,
     Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
     CommentLogo,
     NotificationsLogo,
     UnlikeLogo,
 } from "../../assets/constants";
+import usePostComment from "../../hooks/usePostComment";
+import useAuthStore from "../../store/authStore";
+import useLikePost from "../../hooks/useLikePost";
 
-const PostFooter = ({ username, isProfilePage }) => {
-    const [liked, setLiked] = useState(false);
-    const [likes, setLikes] = useState(1000);
+const PostFooter = ({ post, username, isProfilePage }) => {
+    const [comment, setComment] = useState("");
+    const { handlePostComment, isCommenting } = usePostComment();
+    const authUser = useAuthStore((state) => state.user);
+    const commentRef = useRef(null);
+    const { handleLikePost, isLiked, isUpdating, likes } = useLikePost(post);
 
-    const handleLikes = () => {
-        if (liked) {
-            setLiked(false);
-            setLikes(likes - 1);
-        } else {
-            setLiked(true);
-            setLikes(likes + 1);
-        }
+    const handleSubmitComment = async () => {
+        await handlePostComment(comment, post.id);
+        setComment("");
     };
     return (
         <Box mb={10} marginTop={"auto"}>
             <Flex gap={4} pt={0} mb={2} mt={4} w={"full"} alignItems={"center"}>
-                <Box onClick={handleLikes} fontSize={18} cursor={"pointer"}>
-                    {liked ? <UnlikeLogo /> : <NotificationsLogo />}
+                <Box onClick={handleLikePost} fontSize={18} cursor={"pointer"}>
+                    {isLiked ? <UnlikeLogo /> : <NotificationsLogo />}
                 </Box>
-                <Box fontSize={18} cursor={"pointer"}>
+                <Box
+                    fontSize={18}
+                    cursor={"pointer"}
+                    onClick={() => commentRef.current.focus()}
+                >
                     <CommentLogo />
                 </Box>
             </Flex>
@@ -59,19 +64,32 @@ const PostFooter = ({ username, isProfilePage }) => {
                 gap={2}
                 w={"full"}
             >
-                <InputGroup p={0} endElement={<PostButton />}>
-                    <Input
-                        variant={"flushed"}
-                        placeholder='Add a comment ...'
-                        fontSize={14}
-                    />
-                </InputGroup>
+                {authUser && (
+                    <InputGroup
+                        p={0}
+                        endElement={
+                            <PostButton
+                                handleSubmit={handleSubmitComment}
+                                isCommenting={isCommenting}
+                            />
+                        }
+                    >
+                        <Input
+                            variant={"flushed"}
+                            placeholder='Add a comment ...'
+                            fontSize={14}
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            ref={commentRef}
+                        />
+                    </InputGroup>
+                )}
             </Flex>
         </Box>
     );
 };
 
-const PostButton = () => {
+const PostButton = ({ handleSubmit, isCommenting }) => {
     return (
         <Button
             fontSize={14}
@@ -83,6 +101,8 @@ const PostButton = () => {
             }}
             bg={"transparent"}
             me='-7'
+            onClick={handleSubmit}
+            loading={isCommenting}
         >
             Post
         </Button>

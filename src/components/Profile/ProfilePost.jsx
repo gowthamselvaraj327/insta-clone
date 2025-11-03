@@ -7,20 +7,65 @@ import {
     Dialog,
     Portal,
     Button,
-    Box,
     Avatar,
     Separator,
     VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { AiFillHeart } from "react-icons/ai";
 import { FaComment } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Comment from "../Comment/Comment";
 import PostFooter from "../FeedPosts/PostFooter";
+import useUserProfileStore from "../../store/useProfileStore";
+import useAuthStore from "../../store/authStore";
+import { useState } from "react";
+import useShowToast from "../../hooks/useShowToast";
+import { deleteObject, ref } from "firebase/storage";
+import { firestore, storage } from "../../firebase/firebase";
+import {
+    arrayRemove,
+    collection,
+    deleteDoc,
+    doc,
+    updateDoc,
+} from "firebase/firestore";
+import usePostStore from "../../store/postStore";
+import Caption from "../Comment/Caption";
 
-const ProfilePost = ({ img }) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
+const ProfilePost = ({ post }) => {
+    const userProfile = useUserProfileStore((state) => state.userProfile);
+    const deletePostInUserProfile = useUserProfileStore(
+        (state) => state.deletePost
+    );
+
+    const authUser = useAuthStore((state) => state.user);
+    const deletePost = usePostStore((state) => state.deletePost);
+
+    const showToast = useShowToast();
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeletePost = async () => {
+        if (!window.confirm("Are you sure, you want to delete this post?"))
+            return;
+        if (isDeleting) return;
+        try {
+            setIsDeleting(true);
+            const imageRef = ref(storage, `posts/${post.id}`);
+            await deleteObject(imageRef);
+            await deleteDoc(doc(firestore, "posts", post.id));
+            await updateDoc(doc(firestore, "users", authUser.uid), {
+                posts: arrayRemove(post.id),
+            });
+            deletePost(post.id);
+            deletePostInUserProfile(post.id);
+            showToast("Success", "Post deleted successfully", "success");
+        } catch (error) {
+            showToast("Error", error.message, "error");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <Dialog.Root placement={"center"} size={{ base: "lg", md: "xl" }}>
             <Dialog.Trigger asChild>
@@ -54,19 +99,19 @@ const ProfilePost = ({ img }) => {
                             <Flex>
                                 <AiFillHeart size={20} />
                                 <Text fontWeight={"bold"} ml={2}>
-                                    7
+                                    {post.likes.length}
                                 </Text>
                             </Flex>
                             <Flex>
                                 <FaComment size={20} />
                                 <Text fontWeight={"bold"} ml={2}>
-                                    7
+                                    {post.comments.length}
                                 </Text>
                             </Flex>
                         </Flex>
                     </Flex>
                     <Image
-                        src={img}
+                        src={post.imageURL}
                         alt='Profile post'
                         w={"100%"}
                         h={"100%"}
@@ -83,16 +128,23 @@ const ProfilePost = ({ img }) => {
                                 gap={4}
                                 w={{ base: "90%", sm: "70%", md: "full" }}
                                 mx={"auto"}
+                                maxH={"90vh"}
+                                minH={"50vh"}
                             >
-                                <Box
+                                <Flex
                                     borderRadius={4}
                                     overflow={"hidden"}
                                     border={"1px solid"}
                                     borderColor={"whiteAlpha.300"}
                                     flex={1.5}
+                                    justifyContent={"center"}
+                                    alignItems={"center"}
                                 >
-                                    <Image src={img} alt='profile post' />
-                                </Box>
+                                    <Image
+                                        src={post.imageURL}
+                                        alt='profile post'
+                                    />
+                                </Flex>
                                 <Flex
                                     flex={1}
                                     flexDir={"column"}
@@ -103,100 +155,65 @@ const ProfilePost = ({ img }) => {
                                         alignItems={"center"}
                                         justifyContent={"space-between"}
                                     >
-                                        <Flex
-                                            alignItems={"center"}
-                                            gap={4}
-                                        >
+                                        <Flex alignItems={"center"} gap={4}>
                                             <Avatar.Root>
-                                                <Avatar.Fallback name='Segun Adebayo' />
-                                                <Avatar.Image src='/profilepic.png' />
+                                                <Avatar.Fallback />
+                                                <Avatar.Image
+                                                    src={
+                                                        userProfile.profilePicURL
+                                                    }
+                                                />
                                             </Avatar.Root>
                                             <Text
                                                 fontWeight={"bold"}
                                                 fontSize={12}
                                             >
-                                                asaprogrammer_
+                                                {userProfile.username}
                                             </Text>
                                         </Flex>
-                                        <Box
-                                            _hover={{
-                                                bg: "whiteAlpha.300",
-                                                color: "red.600",
-                                            }}
-                                            borderRadius={4}
-                                            p={1}
-                                        >
-                                            <MdDelete
-                                                size={20}
-                                                cursor={"pointer"}
-                                            />
-                                        </Box>
+                                        {authUser?.uid === userProfile.uid && (
+                                            <Button
+                                                size={"sm"}
+                                                bg={"transparent"}
+                                                color={"white"}
+                                                _hover={{
+                                                    bg: "whiteAlpha.300",
+                                                    color: "red.600",
+                                                }}
+                                                borderRadius={4}
+                                                p={1}
+                                                onClick={handleDeletePost}
+                                                loading={isDeleting}
+                                            >
+                                                <MdDelete
+                                                    size={20}
+                                                    cursor={"pointer"}
+                                                />
+                                            </Button>
+                                        )}
                                     </Flex>
                                     <Separator my={4} bg={"gray.500"} />
-                                    <VStack w={"full"} alignItems={"start"} maxH={"350px"} overflowY={"auto"}>
-                                        <Comment 
-                                            createdAt="1d ago"
-                                            username="asaprogrammer_"
-                                            profilepic="/profilepic.png"
-                                            text="Dummy images from unsplash"
-                                        />
-                                        <Comment 
-                                            createdAt="2d ago"
-                                            username="abrahmov"
-                                            profilepic="https://randomuser.me/api/portraits/men/71.jpg"
-                                            text="Nice Pic"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
-                                        <Comment 
-                                            createdAt="5h ago"
-                                            username="kentdodds"
-                                            profilepic="https://randomuser.me/api/portraits/men/72.jpg"
-                                            text="Good!!"
-                                        />
+                                    <VStack
+                                        w={"full"}
+                                        alignItems={"start"}
+                                        maxH={"350px"}
+                                        overflowY={"auto"}
+                                    >
+                                        {post.caption && (
+                                            <Caption post={post} />
+                                        )}
+                                        {post.comments.map((comment, idx) => (
+                                            <Comment
+                                                key={comment.id || idx}
+                                                comment={comment}
+                                            />
+                                        ))}
                                     </VStack>
                                     <Separator my={4} bg={"gray.800"} />
-                                    <PostFooter isProfilePage={true} />
+                                    <PostFooter
+                                        isProfilePage={true}
+                                        post={post}
+                                    />
                                 </Flex>
                             </Flex>
                         </Dialog.Body>
