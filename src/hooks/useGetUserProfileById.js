@@ -25,7 +25,7 @@ const useGetUserProfileById = (userId) => {
             }
         };
         getUserProfile();
-    }, [userId, showToast]);
+    }, [userId, showToast, setUserProfile]);
     return { isLoading, userProfile };
 };
 

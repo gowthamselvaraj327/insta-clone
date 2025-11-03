@@ -13,7 +13,7 @@ const SuggestedHeader = () => {
                 <RouterLink to={`${authUser.username}`}>
                     <Avatar.Root size={"lg"}>
                         <Avatar.Fallback />
-                        <Avatar.Image src={authUser.profilePicURL} />
+                        <Avatar.Image src={authUser.profilePicURL || null} />
                     </Avatar.Root>
                 </RouterLink>
                 <RouterLink to={`${authUser.username}`}>
